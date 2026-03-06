@@ -42,12 +42,29 @@ META_PATH  = "models/meta.json"
 REF_DIR    = "data/reference"
 
 EXERCISES = [
-    ("squat",     "Squat",           "1"),
-    ("deep_squat","Deep Squat",      "2"),
-    ("lunge",     "Lunge",           "3"),
-    ("arm_raise", "Arm Raise",       "4"),
-    ("bird_dog",  "Bird Dog",        "5"),
-    ("bridge",    "Hip Bridge",      "6"),
+    ("squat",              "Squat",                "1"),
+    ("deep_squat",         "Deep Squat",           "2"),
+    ("hurdle_step",        "Hurdle Step",          "3"),
+    ("inline_lunge",       "Inline Lunge",         "4"),
+    ("side_lunge",         "Side Lunge",           "5"),
+    ("sit_to_stand",       "Sit to Stand",         "6"),
+    ("standing_leg_raise", "Standing Leg Raise",   "7"),
+    ("shoulder_abduction", "Shoulder Abduction",   "8"),
+    ("shoulder_extension", "Shoulder Extension",   "9"),
+    ("shoulder_rotation",  "Shoulder Rotation",    "a"),
+    ("shoulder_scaption",  "Shoulder Scaption",    "b"),
+    ("hip_abduction",      "Hip Abduction",       "c"),
+    ("trunk_rotation",     "Trunk Rotation",       "d"),
+    ("leg_raise",          "Leg Raise",            "e"),
+    ("reach_and_retrieve", "Reach and Retrieve",   "f"),
+    ("wall_pushup",        "Wall Push-up",         "g"),
+    ("heel_raise",         "Heel Raise",           "h"),
+    ("bird_dog",           "Bird Dog",             "i"),
+    ("glute_bridge",       "Glute Bridge",         "j"),
+    ("clamshell",          "Clamshell",            "k"),
+    ("chin_tuck",          "Chin Tuck",            "l"),
+    ("marching_in_place",  "Marching in Place",    "m"),
+    ("step_up",            "Step Up",              "n"),
 ]
 TARGET_REPS = 10
 
@@ -189,6 +206,7 @@ def run():
     show_menu    = True
     session_done = False
     score_history = []
+    demo_imgs    = {}  # optional: load demo images per exercise_id
 
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
@@ -213,17 +231,41 @@ def run():
             if show_menu:
                 draw_panel(frame, 0, 0, FW, FH, alpha=0.7)
                 put_text(frame, "REHABILITATION EXERCISE MONITOR",
-                         (FW // 2 - 330, 80), 1.0, CLR_ACCENT, 2, bold=True)
-                put_text(frame, "Select Exercise:", (FW // 2 - 150, 140), 0.75, CLR_WHITE)
-                for i, (eid, elabel, key) in enumerate(EXERCISES):
-                    marker = ">>" if i == current_ex_idx else "  "
-                    col = CLR_ACCENT if i == current_ex_idx else CLR_WHITE
-                    put_text(frame, f"  [{key}] {marker} {elabel}",
-                             (FW // 2 - 160, 190 + i * 45), 0.72, col)
-                put_text(frame, "Press number key to select. ENTER to start.",
-                         (FW // 2 - 280, FH - 60), 0.65, CLR_WHITE)
+                         (FW // 2 - 330, 45), 0.9, CLR_ACCENT, 2, bold=True)
+                put_text(frame, "Select Exercise:", (60, 85), 0.65, CLR_WHITE)
+
+                # Two columns — 12 left, 11 right
+                col1 = EXERCISES[:12]
+                col2 = EXERCISES[12:]
+
+                for i, (eid, elabel, ekey) in enumerate(col1):
+                    marker = ">>" if EXERCISES.index((eid, elabel, ekey)) == current_ex_idx else "  "
+                    col = CLR_ACCENT if EXERCISES.index((eid, elabel, ekey)) == current_ex_idx else CLR_WHITE
+                    put_text(frame, f"[{ekey}] {marker} {elabel}",
+                             (40, 115 + i * 38), 0.60, col)
+
+                for i, (eid, elabel, ekey) in enumerate(col2):
+                    marker = ">>" if EXERCISES.index((eid, elabel, ekey)) == current_ex_idx else "  "
+                    col = CLR_ACCENT if EXERCISES.index((eid, elabel, ekey)) == current_ex_idx else CLR_WHITE
+                    put_text(frame, f"[{ekey}] {marker} {elabel}",
+                             (FW // 2 + 20, 115 + i * 38), 0.60, col)
+
+                # Show demo image for selected exercise on right side if available
+                demo = demo_imgs.get(exercise_id)
+                if demo is not None:
+                    dh, dw = demo.shape[:2]
+                    scale = min(200/dw, 220/dh)
+                    nw, nh = int(dw*scale), int(dh*scale)
+                    demo_r = cv2.resize(demo, (nw, nh))
+                    x0 = FW - nw - 20
+                    y0 = FH - nh - 60
+                    frame[y0:y0+nh, x0:x0+nw] = demo_r
+
+                put_text(frame, "Press key to select  |  Same key again or ENTER to start  |  Q to quit",
+                         (FW // 2 - 340, FH - 25), 0.55, CLR_WHITE)
                 cv2.imshow("Rehabilitation Monitor", frame)
                 key = cv2.waitKey(1) & 0xFF
+
                 for i, (eid, elabel, kchar) in enumerate(EXERCISES):
                     if key == ord(kchar):
                         if current_ex_idx == i:
@@ -236,16 +278,13 @@ def run():
                         else:
                             current_ex_idx = i
                             exercise_id, exercise_label, _ = EXERCISES[i]
-                if key == 13:   # Enter
+
+                if key == 13:
                     show_menu = False
-                    buf.reset()
-                    smoother.reset()
+                    buf.reset(); smoother.reset()
                     rep_counter.set_exercise(exercise_id)
                     ref_seq = load_reference(exercise_id)
-                    score = 0.0
-                    errors = []
-                    score_history = []
-                    session_done = False
+                    score = 0.0; errors = []; score_history = []; session_done = False
                 elif key == ord('q'):
                     break
                 continue

@@ -101,10 +101,75 @@ def get_exercise_angles(frame: np.ndarray, exercise: str) -> dict:
         angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
         angles["back"]       = ang(J["left_shoulder"],  J["left_hip"],  J["right_shoulder"])
 
-    elif exercise in ("bridge", "hip_bridge"):
+    elif exercise in ("bridge", "hip_bridge", "glute_bridge"):
         angles["left_knee"]  = ang(J["left_hip"],  J["left_knee"],  J["left_ankle"])
         angles["right_knee"] = ang(J["right_hip"], J["right_knee"], J["right_ankle"])
         angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+
+    elif exercise == "hurdle_step":
+        angles["left_knee"]  = ang(J["left_hip"],  J["left_knee"],  J["left_ankle"])
+        angles["right_knee"] = ang(J["right_hip"], J["right_knee"], J["right_ankle"])
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise in ("inline_lunge", "side_lunge"):
+        angles["left_knee"]  = ang(J["left_hip"],   J["left_knee"],  J["left_ankle"])
+        angles["right_knee"] = ang(J["right_hip"],  J["right_knee"], J["right_ankle"])
+        angles["torso"]      = ang(J["nose"],        J["left_hip"],   J["left_ankle"])
+
+    elif exercise == "sit_to_stand":
+        angles["left_knee"]  = ang(J["left_hip"],  J["left_knee"],  J["left_ankle"])
+        angles["right_knee"] = ang(J["right_hip"], J["right_knee"], J["right_ankle"])
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise == "standing_leg_raise":
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise in ("shoulder_extension", "shoulder_rotation", "shoulder_scaption"):
+        angles["left_elbow"]  = ang(J["left_shoulder"],  J["left_elbow"],  J["left_wrist"])
+        angles["right_elbow"] = ang(J["right_shoulder"], J["right_elbow"], J["right_wrist"])
+        angles["left_shoulder"]  = ang(J["left_hip"],  J["left_shoulder"],  J["left_elbow"])
+        angles["right_shoulder"] = ang(J["right_hip"], J["right_shoulder"], J["right_elbow"])
+
+    elif exercise == "hip_abduction":
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise == "trunk_rotation":
+        angles["back"] = ang(J["left_shoulder"], J["left_hip"], J["right_shoulder"])
+
+    elif exercise == "leg_raise":
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise == "reach_and_retrieve":
+        angles["left_shoulder"]  = ang(J["left_hip"],  J["left_shoulder"],  J["left_elbow"])
+        angles["right_shoulder"] = ang(J["right_hip"], J["right_shoulder"], J["right_elbow"])
+        angles["left_elbow"]  = ang(J["left_shoulder"],  J["left_elbow"],  J["left_wrist"])
+        angles["right_elbow"] = ang(J["right_shoulder"], J["right_elbow"], J["right_wrist"])
+
+    elif exercise == "wall_pushup":
+        angles["left_elbow"]  = ang(J["left_shoulder"],  J["left_elbow"],  J["left_wrist"])
+        angles["right_elbow"] = ang(J["right_shoulder"], J["right_elbow"], J["right_wrist"])
+
+    elif exercise == "heel_raise":
+        angles["left_knee"]  = ang(J["left_hip"],  J["left_knee"],  J["left_ankle"])
+        angles["right_knee"] = ang(J["right_hip"], J["right_knee"], J["right_ankle"])
+
+    elif exercise == "clamshell":
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
+
+    elif exercise == "chin_tuck":
+        angles["back"] = ang(J["nose"], J["left_shoulder"], J["left_hip"])
+
+    elif exercise in ("marching_in_place", "step_up"):
+        angles["left_knee"]  = ang(J["left_hip"],  J["left_knee"],  J["left_ankle"])
+        angles["right_knee"] = ang(J["right_hip"], J["right_knee"], J["right_ankle"])
+        angles["left_hip"]   = ang(J["left_shoulder"], J["left_hip"], J["left_knee"])
+        angles["right_hip"]  = ang(J["right_shoulder"], J["right_hip"], J["right_knee"])
 
     else:  # generic – use common angles
         angles["left_knee"]     = ang(J["left_hip"],      J["left_knee"],  J["left_ankle"])
@@ -143,6 +208,126 @@ EXERCISE_THRESHOLDS = {
         "left_knee":  (80,  100, "Bend knees to 90°"),
         "left_hip":   (160, 200, "Raise hips higher"),
     },
+    # 17 additional exercises — standard physiotherapy joint angle ranges
+    "hurdle_step": {
+        "left_knee":  (85,  120, "Step knee over ankle"),
+        "right_knee": (85,  120, "Support knee at 90°"),
+        "left_hip":   (70,  100, "Hip flexion for step"),
+        "right_hip":  (70,  100, "Hip extension behind"),
+    },
+    "inline_lunge": {
+        "left_knee":  (80,  100, "Front knee at 90°"),
+        "right_knee": (80,  100, "Back knee toward floor"),
+        "torso":      (160, 200, "Keep torso upright"),
+    },
+    "side_lunge": {
+        "left_knee":  (80,  100, "Bend knee over toes"),
+        "right_knee": (170, 190, "Straighten other leg"),
+        "torso":      (160, 200, "Keep torso upright"),
+    },
+    "sit_to_stand": {
+        "left_knee":  (85,  100, "Knees over ankles"),
+        "right_knee": (85,  100, "Knees over ankles"),
+        "left_hip":   (80,  100, "Hinge at hips"),
+        "right_hip":  (80,  100, "Hinge at hips"),
+    },
+    "standing_leg_raise": {
+        "left_hip":   (75,  95, "Raise leg to 90°"),
+        "right_hip":  (75,  95, "Raise leg to 90°"),
+    },
+    "shoulder_abduction": {
+        "left_shoulder":  (80,  100, "Raise arm to shoulder height"),
+        "right_shoulder": (80,  100, "Raise arm to shoulder height"),
+    },
+    "shoulder_extension": {
+        "left_shoulder":  (35,  55, "Extend arm behind"),
+        "right_shoulder": (35,  55, "Extend arm behind"),
+    },
+    "shoulder_rotation": {
+        "left_shoulder":  (70,  90, "External rotation range"),
+        "right_shoulder": (70,  90, "External rotation range"),
+    },
+    "shoulder_scaption": {
+        "left_shoulder":  (75,  95, "Raise arm in scaption plane"),
+        "right_shoulder": (75,  95, "Raise arm in scaption plane"),
+    },
+    "hip_abduction": {
+        "left_hip":   (35,  55, "Lift leg out to side"),
+        "right_hip":  (35,  55, "Lift leg out to side"),
+    },
+    "trunk_rotation": {
+        "back": (40,  70, "Rotate trunk within range"),
+    },
+    "leg_raise": {
+        "left_hip":   (75,  95, "Raise leg with control"),
+        "right_hip":  (75,  95, "Raise leg with control"),
+    },
+    "reach_and_retrieve": {
+        "left_shoulder":  (60,  90, "Reach forward"),
+        "right_shoulder": (60,  90, "Reach forward"),
+        "left_elbow":     (140, 180, "Extend arm to reach"),
+        "right_elbow":    (140, 180, "Extend arm to reach"),
+    },
+    "wall_pushup": {
+        "left_elbow":  (80,  100, "Bend elbows to 90°"),
+        "right_elbow": (80,  100, "Bend elbows to 90°"),
+    },
+    "heel_raise": {
+        "left_knee":  (170, 190, "Keep knees straight"),
+        "right_knee": (170, 190, "Keep knees straight"),
+    },
+    "glute_bridge": {
+        "left_knee":  (80,  100, "Bend knees to 90°"),
+        "left_hip":   (160, 200, "Raise hips to bridge"),
+    },
+    "clamshell": {
+        "left_hip":   (25,  45, "Open knee within range"),
+        "right_hip":  (25,  45, "Open knee within range"),
+    },
+    "chin_tuck": {
+        "back": (160, 190, "Keep neck aligned"),
+    },
+    "marching_in_place": {
+        "left_knee":  (75,  95, "Lift knee to 90°"),
+        "right_knee": (75,  95, "Lift knee to 90°"),
+        "left_hip":   (75,  95, "Hip flexion for march"),
+        "right_hip":  (75,  95, "Hip flexion for march"),
+    },
+    "step_up": {
+        "left_knee":  (80,  100, "Drive knee over ankle"),
+        "right_knee": (80,  100, "Support leg at 90°"),
+        "left_hip":   (75,  95, "Hip drive on step"),
+        "right_hip":  (75,  95, "Hip extension push"),
+    },
+}
+
+IDEAL_ANGLES = {
+    "squat":            {"left_knee": 105, "right_knee": 105, "back": 175},
+    "deep_squat":       {"left_knee": 85,  "right_knee": 85,  "back": 170},
+    "lunge":            {"left_knee": 90,  "right_knee": 90,  "torso": 180},
+    "arm_raise":        {"left_shoulder": 90, "right_shoulder": 90},
+    "bird_dog":         {"back": 175},
+    "bridge":           {"left_knee": 90, "left_hip": 180},
+    "hurdle_step":      {"left_knee": 95,  "right_knee": 95,  "left_hip": 85,  "right_hip": 85},
+    "inline_lunge":     {"left_knee": 90,  "right_knee": 90,  "torso": 180},
+    "side_lunge":       {"left_knee": 90,  "right_knee": 180, "torso": 180},
+    "sit_to_stand":     {"left_knee": 92,  "right_knee": 92,  "left_hip": 90,  "right_hip": 90},
+    "standing_leg_raise": {"left_hip": 90,  "right_hip": 90},
+    "shoulder_abduction":  {"left_shoulder": 90, "right_shoulder": 90},
+    "shoulder_extension": {"left_shoulder": 45, "right_shoulder": 45},
+    "shoulder_rotation":  {"left_shoulder": 80, "right_shoulder": 80},
+    "shoulder_scaption":  {"left_shoulder": 85, "right_shoulder": 85},
+    "hip_abduction":    {"left_hip": 45,  "right_hip": 45},
+    "trunk_rotation":   {"back": 55},
+    "leg_raise":        {"left_hip": 90,  "right_hip": 90},
+    "reach_and_retrieve": {"left_shoulder": 75, "right_shoulder": 75, "left_elbow": 160, "right_elbow": 160},
+    "wall_pushup":      {"left_elbow": 90, "right_elbow": 90},
+    "heel_raise":       {"left_knee": 180, "right_knee": 180},
+    "glute_bridge":     {"left_knee": 90, "left_hip": 180},
+    "clamshell":        {"left_hip": 35,  "right_hip": 35},
+    "chin_tuck":        {"back": 175},
+    "marching_in_place": {"left_knee": 90, "right_knee": 90, "left_hip": 90, "right_hip": 90},
+    "step_up":          {"left_knee": 90, "right_knee": 90, "left_hip": 85, "right_hip": 85},
 }
 
 def detect_errors(angles: dict, exercise: str) -> list:
