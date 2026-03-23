@@ -26,3 +26,13 @@ Thumbs.db
 # Project
 *.log
 rehab_project/logs/
+
+# Generated data and model (run setup.py to create)
+rehab_project/data/unified/
+rehab_project/data/custom/
+rehab_project/data/reference/
+rehab_project/data/ntu/
+rehab_project/data/uiprmd/
+rehab_project/data/kimore/
+rehab_project/data/dataset_info.json
+rehab_project/models/*.keras

@@ -24,13 +24,26 @@ INPUT_DIM       = N_JOINTS * N_COORDS   # 99
 
 # ── Attention Layer ────────────────────────────────────────────────────────────
 
+# TF 2.13+ has tf.keras.saving; older TF uses tf.keras.utils
+try:
+    _register = tf.keras.saving.register_keras_serializable
+except AttributeError:
+    _register = tf.keras.utils.register_keras_serializable
+
+@_register(package="src.models.st_gcn", name="JointAttention")
 class JointAttention(layers.Layer):
     """Soft attention over the time-steps of an LSTM output."""
 
     def __init__(self, units: int = 64, **kwargs):
         super().__init__(**kwargs)
-        self.W = layers.Dense(units, activation="tanh")
+        self.units = int(units)
+        self.W = layers.Dense(self.units, activation="tanh")
         self.u = layers.Dense(1)
+
+    def get_config(self):
+        config = super().get_config()
+        config["units"] = self.units
+        return config
 
     def call(self, hidden_states):
         # hidden_states: (batch, T, features)

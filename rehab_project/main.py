@@ -40,6 +40,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 MODEL_PATH = "models/rehab_model.keras"
 META_PATH  = "models/meta.json"
 REF_DIR    = "data/reference"
+DEMO_IMG_DIR = "data/demos"  # optional photos: <exercise_id>.jpg or .png
 
 EXERCISES = [
     ("squat",              "Squat",                "1"),
@@ -67,6 +68,60 @@ EXERCISES = [
     ("step_up",            "Step Up",              "n"),
 ]
 TARGET_REPS = 10
+
+# Short "how to perform" for menu (ASCII only for OpenCV display)
+EXERCISE_INSTRUCTIONS = {
+    "squat":              "Bend knees, hips back; knees over toes.",
+    "deep_squat":         "Squat lower than 90 deg; keep back straight.",
+    "hurdle_step":        "Step one foot over hurdle; alternate legs.",
+    "inline_lunge":       "Front knee 90 deg; back knee toward floor.",
+    "side_lunge":         "Step to side, bend knee; other leg straight.",
+    "sit_to_stand":       "Stand from chair using legs; sit back down.",
+    "standing_leg_raise": "Lift one leg to front or side; hold balance.",
+    "shoulder_abduction": "Raise arms out to sides to shoulder height.",
+    "shoulder_extension": "Move arms backward behind body; controlled.",
+    "shoulder_rotation": "Elbow at 90; rotate arm in/out at shoulder.",
+    "shoulder_scaption":  "Raise arms between forward and side (scaption).",
+    "hip_abduction":      "Lift leg out to side; keep standing leg stable.",
+    "trunk_rotation":     "Rotate upper body left/right; hips stay still.",
+    "leg_raise":          "Lying on back, lift one leg up; lower slowly.",
+    "reach_and_retrieve": "Reach forward with arm; return; alternate.",
+    "wall_pushup":        "Hands on wall; bend elbows, chest to wall.",
+    "heel_raise":         "Rise onto toes; lower slowly. Hold for balance.",
+    "bird_dog":           "On all fours: extend one arm, opposite leg.",
+    "glute_bridge":       "On back, knees bent; lift hips to ceiling.",
+    "clamshell":          "On side, knees bent; lift top knee, feet together.",
+    "chin_tuck":          "Tuck chin straight back (double-chin); release.",
+    "marching_in_place":   "March on spot; lift knees, swing arms.",
+    "step_up":            "Step one foot onto platform; drive up; alternate.",
+}
+
+# Step-by-step instructions for reference cards (easy to read, no graphs)
+EXERCISE_STEPS = {
+    "squat":              ["Stand feet shoulder-width.", "Bend knees, push hips back.", "Keep chest up, knees over toes.", "Return to stand."],
+    "deep_squat":         ["Same as squat.", "Go lower (thighs below 90 deg).", "Keep back straight.", "Stand back up."],
+    "hurdle_step":        ["Step one foot over a low hurdle.", "Place foot in front.", "Step back. Repeat other leg."],
+    "inline_lunge":       ["Step one foot forward.", "Lower back knee toward floor.", "Both knees near 90 deg.", "Push back to start."],
+    "side_lunge":         ["Step one leg out to the side.", "Bend that knee, other leg straight.", "Return to centre. Repeat other side."],
+    "sit_to_stand":       ["Sit on chair. Shift forward.", "Stand up using your legs.", "Sit back down with control. Repeat."],
+    "standing_leg_raise": ["Stand on one leg (hold wall if needed).", "Lift other leg to front or side.", "Lower slowly. Repeat."],
+    "shoulder_abduction": ["Arms at sides.", "Raise both arms out to sides.", "Lift to shoulder height. Lower slowly."],
+    "shoulder_extension": ["Arms at sides or in front.", "Move arms backward.", "Squeeze shoulder blades. Return."],
+    "shoulder_rotation":  ["Elbow bent 90 at your side.", "Rotate forearm and shoulder out.", "Return. Repeat other arm."],
+    "shoulder_scaption":  ["Raise arms between forward and side.", "Lift to shoulder height.", "Lower slowly."],
+    "hip_abduction":      ["Stand or lie on side.", "Lift one leg out to the side.", "Lower with control. Repeat."],
+    "trunk_rotation":     ["Stand or sit. Keep hips still.", "Rotate upper body to one side.", "Return. Rotate to other side."],
+    "leg_raise":          ["Lie on back. One leg on floor.", "Lift other leg up toward ceiling.", "Lower slowly. Repeat."],
+    "reach_and_retrieve": ["Reach one arm forward.", "Return. Repeat other arm."],
+    "wall_pushup":        ["Stand arm's length from wall.", "Hands on wall at shoulder height.", "Bend elbows, chest to wall. Push back."],
+    "heel_raise":         ["Stand. Hold wall or chair.", "Rise onto toes.", "Lower slowly. Repeat."],
+    "bird_dog":           ["On hands and knees.", "Extend one arm forward.", "Extend opposite leg back. Hold. Switch sides."],
+    "glute_bridge":       ["Lie on back. Knees bent, feet flat.", "Lift hips toward ceiling.", "Squeeze glutes. Lower. Repeat."],
+    "clamshell":          ["Lie on side. Knees bent, feet together.", "Lift top knee up. Keep feet together.", "Lower. Repeat."],
+    "chin_tuck":          ["Sit or stand straight.", "Tuck chin straight back (double chin).", "Hold a few seconds. Release."],
+    "marching_in_place":  ["March on the spot.", "Lift knees. Swing arms naturally.", "Stay upright."],
+    "step_up":            ["Step one foot onto a low step.", "Push through that leg to bring other foot up.", "Step down. Alternate legs."],
+}
 
 # Colours (BGR)
 CLR_GREEN  = (50,  220,  50)
@@ -120,6 +175,90 @@ def put_text(frame, text, pos, scale=0.6, color=CLR_WHITE, thick=1, bold=False):
     if bold:
         cv2.putText(frame, text, pos, cv2.FONT_HERSHEY_DUPLEX, scale, CLR_DARK, thick + 3)
     cv2.putText(frame, text, pos, cv2.FONT_HERSHEY_DUPLEX, scale, color, thick)
+
+
+def put_text_wrapped(frame, text, x, y_start, line_height, max_chars=48, scale=0.5, color=CLR_WHITE, max_lines=3):
+    """Draw text wrapped to max_chars per line (space-separated)."""
+    words = text.split()
+    lines, current = [], ""
+    for w in words:
+        if not current:
+            current = w
+        elif len(current) + 1 + len(w) <= max_chars:
+            current += " " + w
+        else:
+            lines.append(current)
+            current = w
+    if current:
+        lines.append(current)
+    for i, line in enumerate(lines[:max_lines]):
+        cv2.putText(frame, line, (x, y_start + i * line_height),
+                    cv2.FONT_HERSHEY_DUPLEX, scale, color, 1)
+
+
+def wrap_text_to_lines(text, max_chars=40):
+    """Return list of lines (space-separated wrap)."""
+    words = text.split()
+    lines, current = [], ""
+    for w in words:
+        if not current:
+            current = w
+        elif len(current) + 1 + len(w) <= max_chars:
+            current += " " + w
+        else:
+            lines.append(current)
+            current = w
+    if current:
+        lines.append(current)
+    return lines
+
+
+def build_reference_card(exercise_id: str, label: str, steps=None, width=420, height=360):
+    """
+    Build a clear, readable reference card: title + numbered steps (large text).
+    """
+    if steps is None:
+        steps = EXERCISE_STEPS.get(exercise_id, ["Perform with control."])
+    card = np.zeros((height, width, 3), dtype=np.uint8)
+    card[:] = (42, 42, 48)
+    cv2.rectangle(card, (0, 0), (width - 1, height - 1), CLR_ACCENT, 2)
+    cv2.putText(card, "HOW TO PERFORM", (18, 32), cv2.FONT_HERSHEY_DUPLEX, 0.58, (180, 180, 180), 1)
+    cv2.putText(card, label, (18, 72), cv2.FONT_HERSHEY_DUPLEX, 0.82, CLR_ACCENT, 2)
+    cv2.line(card, (16, 86), (width - 16, 86), (70, 70, 70), 1)
+    y = 118
+    for i, step in enumerate(steps[:5], 1):
+        line = f"{i}. {step}"
+        for sub in wrap_text_to_lines(line, max_chars=48):
+            cv2.putText(card, sub, (22, y), cv2.FONT_HERSHEY_DUPLEX, 0.56, CLR_WHITE, 1)
+            y += 32
+        y += 6
+    return card
+
+
+def load_demo_images():
+    """
+    Build clear text instruction cards for each exercise (no skeleton/graph images).
+    Uses only step-by-step text so anyone can understand. To use your own photos
+    instead, add <exercise_id>.jpg into data/demos/ and they will be used.
+    """
+    demo_imgs = {}
+    for eid, label, _ in EXERCISES:
+        # Optional: load a real photo if you added one as .jpg (skeleton .pngs are ignored)
+        path_photo = None
+        for ext in (".jpg", ".jpeg",):
+            p = os.path.join(DEMO_IMG_DIR, eid + ext)
+            if os.path.isfile(p):
+                path_photo = p
+                break
+        if path_photo:
+            img = cv2.imread(path_photo)
+            if img is not None:
+                demo_imgs[eid] = img
+                continue
+        # Default: clear text card with numbered steps (no graph)
+        steps = EXERCISE_STEPS.get(eid, [EXERCISE_INSTRUCTIONS.get(eid, "Perform with control.")])
+        demo_imgs[eid] = build_reference_card(eid, label, steps=steps)
+    return demo_imgs
 
 
 def draw_score_bar(frame, x, y, w, h, score, label="Score"):
@@ -206,7 +345,7 @@ def run():
     show_menu    = True
     session_done = False
     score_history = []
-    demo_imgs    = {}  # optional: load demo images per exercise_id
+    demo_imgs    = load_demo_images()  # photos from data/demos/ or generated reference cards
 
     cap = cv2.VideoCapture(0)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH,  1280)
@@ -250,19 +389,19 @@ def run():
                     put_text(frame, f"[{ekey}] {marker} {elabel}",
                              (FW // 2 + 20, 115 + i * 38), 0.60, col)
 
-                # Show demo image for selected exercise on right side if available
+                # Visual reference for selected exercise (right side) - large and readable
                 demo = demo_imgs.get(exercise_id)
                 if demo is not None:
-                    dh, dw = demo.shape[:2]
-                    scale = min(200/dw, 220/dh)
-                    nw, nh = int(dw*scale), int(dh*scale)
-                    demo_r = cv2.resize(demo, (nw, nh))
-                    x0 = FW - nw - 20
-                    y0 = FH - nh - 60
-                    frame[y0:y0+nh, x0:x0+nw] = demo_r
+                    MENU_REF_W, MENU_REF_H = 380, 360
+                    demo_r = cv2.resize(demo, (MENU_REF_W, MENU_REF_H))
+                    x0 = FW - MENU_REF_W - 25
+                    y0 = 70
+                    frame[y0:y0 + MENU_REF_H, x0:x0 + MENU_REF_W] = demo_r
+                    cv2.rectangle(frame, (x0, y0), (x0 + MENU_REF_W, y0 + MENU_REF_H), CLR_ACCENT, 2)
+                    put_text(frame, "How to perform - read before starting", (x0, y0 - 8), 0.55, CLR_ACCENT, bold=True)
 
-                put_text(frame, "Press key to select  |  Same key again or ENTER to start  |  Q to quit",
-                         (FW // 2 - 340, FH - 25), 0.55, CLR_WHITE)
+                put_text(frame, "Press key to select  |  Same key or ENTER to start  |  Q quit",
+                         (FW // 2 - 300, FH - 28), 0.52, CLR_WHITE)
                 cv2.imshow("Rehabilitation Monitor", frame)
                 key = cv2.waitKey(1) & 0xFF
 
@@ -369,6 +508,16 @@ def run():
 
             # ── UI panels ────────────────────────────────────────────────────
 
+            # Reference panel (how to perform) - left side, large and easy to read
+            ref_img = demo_imgs.get(exercise_id)
+            if ref_img is not None:
+                REF_W, REF_H = 420, 360
+                ref_display = cv2.resize(ref_img, (REF_W, REF_H))
+                rx, ry = 20, 60
+                frame[ry:ry + REF_H, rx:rx + REF_W] = ref_display
+                cv2.rectangle(frame, (rx, ry), (rx + REF_W, ry + REF_H), CLR_ACCENT, 2)
+                put_text(frame, "Reference - follow these steps", (rx, ry - 8), 0.58, CLR_ACCENT, bold=True)
+
             # Top panel
             draw_panel(frame, 0, 0, FW, 55)
             put_text(frame, f"Exercise: {exercise_label}", (15, 37),
@@ -394,10 +543,10 @@ def run():
             put_text(frame, "FEEDBACK", (px + 10, 320), 0.6, CLR_WHITE, bold=True)
             if errors:
                 for i, err in enumerate(errors[:4]):
-                    put_text(frame, f"• {err}", (px + 10, 348 + i * 28),
+                    put_text(frame, f"- {err}", (px + 10, 348 + i * 28),
                              0.48, CLR_RED)
             else:
-                put_text(frame, "✓ Good form!", (px + 10, 348), 0.55, CLR_GREEN)
+                put_text(frame, "Good form!", (px + 10, 348), 0.55, CLR_GREEN)
 
             # Bottom controls
             draw_panel(frame, 0, FH - 40, FW, 40)

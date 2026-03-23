@@ -193,8 +193,8 @@ EXERCISE_THRESHOLDS = {
         "back":       (155, 200, "Keep back straight"),
     },
     "lunge": {
-        "left_knee":  (80,  100, "Left knee at 90°"),
-        "right_knee": (80,  100, "Right knee at 90°"),
+        "left_knee":  (80,  100, "Left knee at 90 deg"),
+        "right_knee": (80,  100, "Right knee at 90 deg"),
         "torso":      (160, 200, "Keep torso upright"),
     },
     "arm_raise": {
@@ -205,18 +205,18 @@ EXERCISE_THRESHOLDS = {
         "back": (155, 200, "Keep back flat"),
     },
     "bridge": {
-        "left_knee":  (80,  100, "Bend knees to 90°"),
+        "left_knee":  (80,  100, "Bend knees to 90 deg"),
         "left_hip":   (160, 200, "Raise hips higher"),
     },
     # 17 additional exercises — standard physiotherapy joint angle ranges
     "hurdle_step": {
         "left_knee":  (85,  120, "Step knee over ankle"),
-        "right_knee": (85,  120, "Support knee at 90°"),
+        "right_knee": (85,  120, "Support knee at 90 deg"),
         "left_hip":   (70,  100, "Hip flexion for step"),
         "right_hip":  (70,  100, "Hip extension behind"),
     },
     "inline_lunge": {
-        "left_knee":  (80,  100, "Front knee at 90°"),
+        "left_knee":  (80,  100, "Front knee at 90 deg"),
         "right_knee": (80,  100, "Back knee toward floor"),
         "torso":      (160, 200, "Keep torso upright"),
     },
@@ -232,8 +232,8 @@ EXERCISE_THRESHOLDS = {
         "right_hip":  (80,  100, "Hinge at hips"),
     },
     "standing_leg_raise": {
-        "left_hip":   (75,  95, "Raise leg to 90°"),
-        "right_hip":  (75,  95, "Raise leg to 90°"),
+        "left_hip":   (75,  95, "Raise leg to 90 deg"),
+        "right_hip":  (75,  95, "Raise leg to 90 deg"),
     },
     "shoulder_abduction": {
         "left_shoulder":  (80,  100, "Raise arm to shoulder height"),
@@ -269,15 +269,15 @@ EXERCISE_THRESHOLDS = {
         "right_elbow":    (140, 180, "Extend arm to reach"),
     },
     "wall_pushup": {
-        "left_elbow":  (80,  100, "Bend elbows to 90°"),
-        "right_elbow": (80,  100, "Bend elbows to 90°"),
+        "left_elbow":  (80,  100, "Bend elbows to 90 deg"),
+        "right_elbow": (80,  100, "Bend elbows to 90 deg"),
     },
     "heel_raise": {
         "left_knee":  (170, 190, "Keep knees straight"),
         "right_knee": (170, 190, "Keep knees straight"),
     },
     "glute_bridge": {
-        "left_knee":  (80,  100, "Bend knees to 90°"),
+        "left_knee":  (80,  100, "Bend knees to 90 deg"),
         "left_hip":   (160, 200, "Raise hips to bridge"),
     },
     "clamshell": {
@@ -288,14 +288,14 @@ EXERCISE_THRESHOLDS = {
         "back": (160, 190, "Keep neck aligned"),
     },
     "marching_in_place": {
-        "left_knee":  (75,  95, "Lift knee to 90°"),
-        "right_knee": (75,  95, "Lift knee to 90°"),
+        "left_knee":  (75,  95, "Lift knee to 90 deg"),
+        "right_knee": (75,  95, "Lift knee to 90 deg"),
         "left_hip":   (75,  95, "Hip flexion for march"),
         "right_hip":  (75,  95, "Hip flexion for march"),
     },
     "step_up": {
         "left_knee":  (80,  100, "Drive knee over ankle"),
-        "right_knee": (80,  100, "Support leg at 90°"),
+        "right_knee": (80,  100, "Support leg at 90 deg"),
         "left_hip":   (75,  95, "Hip drive on step"),
         "right_hip":  (75,  95, "Hip extension push"),
     },

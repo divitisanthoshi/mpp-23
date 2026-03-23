@@ -185,7 +185,8 @@ rehab_project/
 │       └── repetition_counter.py  ← Peak-detection rep counter
 ├── scripts/
 │   ├── record_data.py         ← Record custom exercise data
-│   └── generate_references.py ← Generate reference sequences
+│   ├── build_dataset.py       ← Multi-source dataset + reference sequences
+│   └── generate_reference_images.py  ← Demo images from reference data
 ├── data/
 │   ├── custom/                ← Your recorded sequences (.npy)
 │   └── reference/             ← Reference sequences per exercise
