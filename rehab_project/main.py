@@ -477,8 +477,8 @@ def run():
                 draw_skeleton_errors(frame, result.pose_landmarks.landmark,
                                      errors, frame.shape)
 
-                # Score calculation
-                if buf.ready():
+                # Score calculation (only while moving — avoids DTW drift when static)
+                if buf.ready() and rep_counter.recent_angle_range(20) > 10.0:
                     seq = buf.get_sequence()   # (1, T, 99)
 
                     if model is not None:

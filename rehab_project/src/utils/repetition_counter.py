@@ -35,8 +35,8 @@ class RepetitionCounter:
     """
 
     def __init__(self, exercise: str = "squat",
-                 peak_distance: int = 15,
-                 peak_prominence: float = 8.0):
+                 peak_distance: int = 25,
+                 peak_prominence: float = 20.0):
         self.exercise        = exercise
         self.peak_distance   = peak_distance
         self.peak_prominence = peak_prominence
@@ -78,6 +78,13 @@ class RepetitionCounter:
     def get_angle(self) -> float:
         return self._angles[-1] if self._angles else 0.0
 
+    def recent_angle_range(self, window: int = 20) -> float:
+        """Max − min joint angle over the last `window` frames (0 if not enough data)."""
+        if len(self._angles) < window:
+            return 0.0
+        w = self._angles[-window:]
+        return float(max(w) - min(w))
+
     def reset(self):
         self._angles.clear()
         self._reps       = 0
@@ -96,6 +103,8 @@ class RepetitionCounter:
 
     def _detect_reps(self):
         arr = np.array(self._angles)
+        if float(arr.max() - arr.min()) < 15.0:
+            return
         peaks, _ = find_peaks(
             arr,
             distance=self.peak_distance,
