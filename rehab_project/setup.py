@@ -57,7 +57,12 @@ def main():
 
     step(6,"Sanity check")
     import tensorflow as tf
-    model = tf.keras.models.load_model("models/rehab_model.keras", compile=False)
+    from src.models.st_gcn import JointAttention
+    model = tf.keras.models.load_model(
+        "models/rehab_model.keras",
+        compile=False,
+        custom_objects={"JointAttention": JointAttention},
+    )
     preds = model.predict(np.zeros((1,60,99),"float32"), verbose=0)
     print(f"  output shapes: {[list(p.shape) for p in preds]}")
     print(f"  score sample:  {float(preds[0][0][0])*100:.1f}%")

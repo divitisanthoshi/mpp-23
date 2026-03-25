@@ -31,7 +31,7 @@ from src.utils.preprocessing import (
     JOINTS, SEQUENCE_LENGTH, INPUT_DIM,
 )
 from src.utils.repetition_counter import RepetitionCounter
-from src.models.st_gcn import dtw_score
+from src.models.st_gcn import dtw_score, JointAttention
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -138,8 +138,12 @@ def load_model_safe():
     try:
         import tensorflow as tf
         if os.path.isfile(MODEL_PATH):
-            model = tf.keras.models.load_model(MODEL_PATH, compile=False)
-            print(f"[✓] Loaded model from {MODEL_PATH}")
+            model = tf.keras.models.load_model(
+                MODEL_PATH,
+                compile=False,
+                custom_objects={"JointAttention": JointAttention},
+            )
+            print(f"[OK] Loaded model from {MODEL_PATH}")
             return model
     except Exception as e:
         print(f"[!] Model load failed: {e}")
